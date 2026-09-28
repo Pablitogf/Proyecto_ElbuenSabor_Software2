@@ -1,0 +1,457 @@
+/* IU-01 · Tablet del mesero: barra superior, categorías, centro (mesas + platos), resumen. */
+.mesero {
+  display: grid;
+  grid-template-columns: 112px minmax(0, 1fr) 340px;
+  grid-template-rows: auto minmax(0, 1fr);
+  grid-template-areas:
+    "barra barra barra"
+    "categorias centro resumen";
+  height: 100vh;
+  height: 100dvh;
+}
+
+/* Barra superior */
+.barra-superior {
+  grid-area: barra;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  padding: 14px 20px;
+  background: var(--verde);
+  color: #fff;
+}
+
+.barra-superior__marca {
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.barra-superior__mesa {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.barra-superior__acciones {
+  position: relative;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 16px;
+}
+
+.barra-superior__ajustes {
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: #fff;
+  font-size: 1.5rem;
+}
+
+.barra-superior__ajustes:hover {
+  background: rgb(255 255 255 / 0.15);
+}
+
+.menu-ajustes {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  min-width: 260px;
+  padding: 6px;
+  border-radius: var(--radio-control);
+  background: var(--superficie);
+  box-shadow: 0 8px 28px rgb(0 0 0 / 0.18);
+}
+
+.menu-ajustes a,
+.menu-ajustes button {
+  padding: 12px 14px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--tinta);
+  text-align: left;
+  text-decoration: none;
+}
+
+.menu-ajustes a:hover,
+.menu-ajustes button:hover {
+  background: var(--verde-claro);
+}
+
+/* Categorías */
+.categorias {
+  grid-area: categorias;
+  display: flex;
+  flex-direction: column;
+  background: var(--superficie);
+  border-right: 1px solid var(--borde);
+  overflow-y: auto;
+}
+
+.categorias__boton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 20px 8px;
+  border: 0;
+  border-left: 4px solid transparent;
+  background: none;
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+.categorias__icono {
+  font-size: 1.7rem;
+}
+
+.categorias__boton[aria-pressed="true"] {
+  border-left-color: var(--verde);
+  background: var(--verde-claro);
+  color: var(--verde-oscuro);
+  font-weight: 700;
+}
+
+/* Centro: mesas arriba, platos debajo con scroll propio */
+.mesero__centro {
+  grid-area: centro;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 0;
+  padding: 16px;
+}
+
+.mesas {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--espacio);
+}
+
+.tarjeta-mesa {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-height: 76px;
+  padding: 12px 8px;
+  border: 0;
+  border-radius: var(--radio-control);
+  color: #fff;
+  box-shadow: var(--sombra);
+  transition: background-color 400ms ease, transform 120ms ease;
+}
+
+.tarjeta-mesa:active {
+  transform: scale(0.97);
+}
+
+.tarjeta-mesa__numero {
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.tarjeta-mesa__estado {
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.85);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.tarjeta-mesa--disponible {
+  background: var(--verde);
+}
+
+.tarjeta-mesa--disponible .tarjeta-mesa__estado {
+  color: var(--verde-oscuro);
+}
+
+.tarjeta-mesa--ocupada {
+  background: var(--rojo);
+}
+
+.tarjeta-mesa--ocupada .tarjeta-mesa__estado {
+  color: var(--rojo);
+}
+
+.tarjeta-mesa--reservada {
+  background: var(--ambar);
+}
+
+.tarjeta-mesa--seleccionada {
+  background: var(--verde-oscuro);
+  outline: 3px solid var(--verde);
+  outline-offset: 2px;
+}
+
+.tarjeta-mesa--seleccionada .tarjeta-mesa__estado {
+  color: var(--verde-oscuro);
+}
+
+/* Lista de platos */
+.platos {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0 4px 0 0;
+  list-style: none;
+  overflow-y: auto;
+}
+
+.platos__indicacion {
+  margin: auto;
+  max-width: 34ch;
+  color: var(--tinta-suave);
+  font-size: 1.1rem;
+  text-align: center;
+}
+
+.tarjeta-plato {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 14px 10px 10px;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-tarjeta);
+  background: var(--superficie);
+}
+
+.tarjeta-plato__icono {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radio-control);
+  background: var(--fondo);
+  font-size: 2.1rem;
+}
+
+.tarjeta-plato__nombre {
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.tarjeta-plato__descripcion {
+  color: var(--tinta-suave);
+  font-size: 0.85rem;
+}
+
+.tarjeta-plato__precio {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 2px;
+  font-weight: 600;
+}
+
+.tarjeta-plato__existencias {
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: #fdf1d6;
+  color: #8a5a00;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.tarjeta-plato--agotado {
+  background: #f6f7f6;
+}
+
+.tarjeta-plato--agotado .tarjeta-plato__icono {
+  filter: grayscale(1);
+  opacity: 0.5;
+}
+
+.tarjeta-plato--agotado .tarjeta-plato__nombre,
+.tarjeta-plato--agotado .tarjeta-plato__precio {
+  color: var(--tinta-suave);
+}
+
+.tarjeta-plato--agotado .tarjeta-plato__existencias {
+  background: var(--rojo-claro);
+  color: var(--rojo);
+}
+
+.boton-cantidad {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  background: var(--superficie);
+  color: var(--verde-oscuro);
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.boton-cantidad--agregar {
+  width: 48px;
+  height: 48px;
+  border-color: var(--verde);
+  background: var(--verde-claro);
+}
+
+.boton-cantidad:disabled {
+  border-color: var(--borde);
+  background: #f1f3f2;
+  color: #b3bcb6;
+}
+
+/* Resumen del pedido */
+.resumen {
+  grid-area: resumen;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--superficie);
+  border-left: 1px solid var(--borde);
+}
+
+.resumen__titulo {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 16px 20px;
+  background: #f4f6f5;
+  border-bottom: 1px solid var(--borde);
+  font-size: 1.2rem;
+}
+
+.resumen__mesa {
+  color: var(--verde-oscuro);
+  font-size: 0.95rem;
+}
+
+.resumen__vacio {
+  padding: 24px 20px;
+  color: var(--tinta-suave);
+}
+
+.resumen__lineas {
+  flex: 1;
+  margin: 0;
+  padding: 0 20px;
+  list-style: none;
+  overflow-y: auto;
+}
+
+.linea-pedido {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--borde);
+}
+
+.linea-pedido__nombre {
+  font-weight: 600;
+}
+
+.linea-pedido__subtotal {
+  font-variant-numeric: tabular-nums;
+}
+
+.linea-pedido__cantidad {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.resumen__pie {
+  margin-top: auto;
+  padding: 16px 20px 20px;
+  border-top: 1px solid var(--borde);
+}
+
+.resumen__total {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 14px;
+  font-size: 1.15rem;
+}
+
+.resumen__total strong {
+  font-size: 1.6rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.resumen__confirmar {
+  width: 100%;
+  min-height: 60px;
+  border: 0;
+  border-radius: var(--radio-control);
+  background: var(--verde);
+  color: #fff;
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.resumen__confirmar:hover:not(:disabled) {
+  background: var(--verde-oscuro);
+}
+
+.resumen__confirmar:disabled {
+  background: #a9c9b5;
+}
+
+.resumen__motivo {
+  margin-top: 8px;
+  color: var(--tinta-suave);
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+/* Tablets pequeñas y celulares: todo en una columna */
+@media (max-width: 900px) {
+  .mesero {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto auto auto;
+    grid-template-areas: "barra" "categorias" "centro" "resumen";
+    height: auto;
+  }
+
+  .barra-superior {
+    grid-template-columns: 1fr auto;
+  }
+
+  .barra-superior__marca {
+    display: none;
+  }
+
+  .categorias {
+    flex-direction: row;
+    border-right: 0;
+    border-bottom: 1px solid var(--borde);
+  }
+
+  .categorias__boton {
+    flex: 1 0 96px;
+    padding: 12px 6px;
+    border-left: 0;
+    border-bottom: 4px solid transparent;
+  }
+
+  .categorias__boton[aria-pressed="true"] {
+    border-bottom-color: var(--verde);
+  }
+
+  .mesas {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .resumen {
+    border-left: 0;
+  }
+}

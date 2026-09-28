@@ -1,0 +1,120 @@
+/* Tokens de diseño: una sola fuente de verdad para colores, radios y espacios. */
+:root {
+  --verde: #2f9b57;
+  --verde-claro: #e3f3e8;
+  --verde-oscuro: #17613a;
+  --rojo: #d64541;
+  --rojo-claro: #fbe4e3;
+  --ambar: #e3a008;
+  --fondo: #eef2ef;
+  --superficie: #ffffff;
+  --borde: #d9e1dc;
+  --tinta: #1d2a22;
+  --tinta-suave: #5e6b63;
+
+  --radio-control: 10px;
+  --radio-tarjeta: 14px;
+  --espacio: 12px;
+  --sombra: 0 1px 2px rgb(29 42 34 / 0.08), 0 2px 8px rgb(29 42 34 / 0.06);
+
+  font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.4;
+  color: var(--tinta);
+  background: var(--fondo);
+  -webkit-tap-highlight-color: transparent;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+:focus-visible {
+  outline: 3px solid var(--ambar);
+  outline-offset: 2px;
+}
+
+/* Avisos emergentes (éxito / error) */
+.aviso-contenedor {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  z-index: 10;
+  pointer-events: none;
+}
+
+.aviso {
+  padding: 14px 22px;
+  border-radius: var(--radio-control);
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 6px 24px rgb(0 0 0 / 0.2);
+  animation: aparecer-aviso 180ms ease-out;
+}
+
+.aviso--exito {
+  background: var(--verde-oscuro);
+}
+
+.aviso--error {
+  background: var(--rojo);
+}
+
+@keyframes aparecer-aviso {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+/* Indicador de conexión en tiempo real */
+.indicador-conexion {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+}
+
+.indicador-conexion__punto {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #7fe0a3;
+}
+
+.indicador-conexion--caido .indicador-conexion__punto {
+  background: var(--rojo);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

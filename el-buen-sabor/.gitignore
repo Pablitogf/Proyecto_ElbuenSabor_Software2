@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+backend/el_buen_sabor.db
+
+# Node
+node_modules/
+dist/
+
+# Editores / SO
+.vscode/
+.idea/
+.DS_Store
