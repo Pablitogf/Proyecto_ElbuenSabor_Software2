@@ -1,0 +1,18 @@
+@startuml Estados_Pedido
+title Ciclo de vida del Pedido (RD-03) — implementado con el patrón State
+[*] --> Registrado : mesero confirma\n(crearPedido)
+Registrado --> EnPreparacion : cocina inicia
+Registrado --> Cancelado : error de digitación\n(devuelve ingredientes,\nlibera la mesa)
+EnPreparacion --> ListoParaServir : todos los platos\nmarcados (notifica al mesero)
+ListoParaServir --> Entregado : mesero marca servido
+Entregado --> Pagado : caja registra el pago\n(libera la mesa)
+Pagado --> Facturado : DIAN valida la factura
+Facturado --> [*]
+Cancelado --> [*]
+note right of Pagado
+  Estado agregado al modelo de análisis:
+  el cliente ya pagó pero la DIAN aún no
+  valida. Evita cobrar dos veces y cumple
+  RD-05 (no se cierra sin factura validada).
+end note
+@enduml

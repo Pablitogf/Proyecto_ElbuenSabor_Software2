@@ -10,9 +10,10 @@ class ModeloBase(DeclarativeBase):
 
 
 def crear_motor(url_base_datos: str) -> Engine:
-    es_sqlite_en_memoria = url_base_datos in ("sqlite://", "sqlite:///:memory:")
-    opciones: dict = {"connect_args": {"check_same_thread": False}}
-    if es_sqlite_en_memoria:
+    opciones: dict = {}
+    if url_base_datos.startswith("sqlite"):
+        opciones["connect_args"] = {"check_same_thread": False}
+    if url_base_datos in ("sqlite://", "sqlite:///:memory:"):
         opciones["poolclass"] = StaticPool  # Una sola conexión compartida (pruebas).
     return create_engine(url_base_datos, **opciones)
 

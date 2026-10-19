@@ -22,7 +22,7 @@ export function ListaPlatos(props: Props) {
   if (!hayMesaSeleccionada) {
     return (
       <p className="platos__indicacion">
-        Toca una mesa libre para ver el menú y empezar su pedido.
+        Toca una mesa libre (verde) para tomar su pedido, o una ocupada para ver cómo va.
       </p>
     );
   }

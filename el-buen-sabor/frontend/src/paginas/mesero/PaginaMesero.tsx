@@ -1,136 +1,144 @@
 import { useCallback, useState } from "react";
 import { ErrorDeApi } from "../../api/clienteHttp";
-import { registrarPedido, reiniciarDatosDeDemostracion } from "../../api/restauranteApi";
+import { pedidosApi, reservasApi, salonApi } from "../../api/endpoints";
 import { Aviso } from "../../compartido/Aviso";
+import { AvisoCajaCerrada } from "../../compartido/AvisoCajaCerrada";
+import { EncabezadoApp } from "../../compartido/EncabezadoApp";
 import { useAviso } from "../../compartido/useAviso";
-import { useEventosTiempoReal } from "../../compartido/useEventosTiempoReal";
+import { useCarga } from "../../compartido/useCarga";
+import { esEvento, useEventosTiempoReal } from "../../compartido/useEventosTiempoReal";
+import { useJornada } from "../../compartido/useJornada";
 import { CATEGORIA_INICIAL } from "../../dominio/categorias";
-import type { Categoria, EventoTiempoReal, Mesa } from "../../dominio/tipos";
-import { BarraSuperior } from "./componentes/BarraSuperior";
+import type { Categoria, EventoTiempoReal, Mesa, Pedido } from "../../dominio/tipos";
+import { AvisosListos } from "./componentes/AvisosListos";
 import { CuadriculaMesas } from "./componentes/CuadriculaMesas";
 import { ListaPlatos } from "./componentes/ListaPlatos";
 import { MenuCategorias } from "./componentes/MenuCategorias";
+import { PanelPedidoActivo } from "./componentes/PanelPedidoActivo";
+import { PanelReserva } from "./componentes/PanelReserva";
 import { ResumenPedido } from "./componentes/ResumenPedido";
 import { useMenu } from "./useMenu";
-import { useMesas } from "./useMesas";
 import { usePedidoEnCurso } from "./usePedidoEnCurso";
 
-const CODIGO_CONFLICTO = 409;
+const CONFLICTO = 409;
 
-/** IU-01: tablet del mesero. Orquesta los pasos 1 a 5 del registro de pedido (F-01). */
+/** IU-01: tablet del mesero. F-01 (tomar pedido), F-05 (servir lo que cocina despacha), F-06 (llegada de reservas). */
 export function PaginaMesero() {
-  const { aviso, mostrarAviso } = useAviso();
-  const mostrarError = useCallback(
-    (mensaje: string) => mostrarAviso("error", mensaje),
-    [mostrarAviso],
-  );
-
-  const { mesas, recargarMesas, actualizarMesa } = useMesas(mostrarError);
+  const { aviso, mostrarAviso, mostrarError } = useAviso();
+  const mesas = useCarga<Mesa[]>(salonApi.mesas, []);
+  const listos = useCarga<Pedido[]>(pedidosApi.listos, []);
+  const { jornada, recargarJornada } = useJornada();
   const { platos, cargando, recargarMenu } = useMenu(mostrarError);
-  const { lineas, total, agregar, quitar, vaciar, ajustarAlMenu } = usePedidoEnCurso();
+  const pedido = usePedidoEnCurso();
 
-  const [numeroMesaSeleccionada, setNumeroMesaSeleccionada] = useState<number | null>(null);
+  const [numeroSeleccionado, setNumeroSeleccionado] = useState<number | null>(null);
   const [categoria, setCategoria] = useState<Categoria>(CATEGORIA_INICIAL);
-  const [enviando, setEnviando] = useState(false);
+  const [ocupado, setOcupado] = useState(false);
 
-  const mesaSeleccionada = mesas.find((mesa) => mesa.numero === numeroMesaSeleccionada) ?? null;
+  const mesa = mesas.datos.find((m) => m.numero === numeroSeleccionado) ?? null;
+  const cajaCerrada = jornada?.estado === "CERRADA";
 
-  const refrescarMenuYAjustarPedido = useCallback(async () => {
-    ajustarAlMenu(await recargarMenu());
-  }, [ajustarAlMenu, recargarMenu]);
-
-  const terminarAtencionDeMesa = useCallback(() => {
-    setNumeroMesaSeleccionada(null);
-    vaciar();
-  }, [vaciar]);
+  const refrescarMenuYAjustar = useCallback(async () => {
+    pedido.ajustarAlMenu(await recargarMenu());
+  }, [pedido, recargarMenu]);
 
   const conectado = useEventosTiempoReal((evento: EventoTiempoReal) => {
-    if (evento.tipo === "DATOS_REINICIADOS") {
-      terminarAtencionDeMesa();
-      void recargarMesas();
-      return;
+    if (esEvento(evento, "PedidoRegistrado", "MesasActualizadas", "EstadoDePedidoCambiado",
+                 "ReservasActualizadas", "DatosReiniciados")) void mesas.recargar();
+    if (esEvento(evento, "PedidoListoParaServir", "EstadoDePedidoCambiado", "DatosReiniciados")) {
+      void listos.recargar();
     }
-    actualizarMesa(evento.mesa);
-    if (evento.mesa.numero === numeroMesaSeleccionada && !enviando) {
-      mostrarError(`Otra tablet acaba de tomar la mesa ${evento.mesa.numero}.`);
-      terminarAtencionDeMesa();
-    } else if (numeroMesaSeleccionada !== null) {
-      void refrescarMenuYAjustarPedido(); // Otro pedido pudo gastar ingredientes.
+    if (esEvento(evento, "JornadaActualizada", "DatosReiniciados")) void recargarJornada();
+    if (esEvento(evento, "InventarioActualizado") && mesa?.estado === "DISPONIBLE") void refrescarMenuYAjustar();
+    if (esEvento(evento, "PedidoRegistrado") && evento.datos.numero_mesa === numeroSeleccionado
+        && !ocupado && pedido.lineas.length > 0) {
+      mostrarError(`Otra tablet acaba de tomar la mesa ${numeroSeleccionado}.`);
+      pedido.vaciar();
     }
+    if (esEvento(evento, "DatosReiniciados")) setNumeroSeleccionado(null);
   });
 
   // Paso 1: el mesero toca una mesa.
-  function seleccionarMesa(mesa: Mesa) {
-    if (mesa.estado !== "DISPONIBLE") {
-      mostrarError(`La mesa ${mesa.numero} está ocupada. Elige una mesa en verde.`);
-      return;
-    }
-    if (mesa.numero !== numeroMesaSeleccionada) vaciar();
-    setNumeroMesaSeleccionada(mesa.numero);
-    void recargarMenu(); // Paso 2: consulta el menú con el stock actual.
+  function seleccionarMesa(elegida: Mesa) {
+    if (elegida.numero !== numeroSeleccionado) pedido.vaciar();
+    setNumeroSeleccionado(elegida.numero);
+    if (elegida.estado === "DISPONIBLE") void recargarMenu(); // Paso 2: menú con stock actual.
   }
 
-  // Paso 4: el mesero confirma el pedido.
-  async function confirmarPedido() {
-    if (!mesaSeleccionada) return;
-    setEnviando(true);
+  async function ejecutar(accion: () => Promise<unknown>, exito: string) {
+    setOcupado(true);
     try {
-      await registrarPedido(mesaSeleccionada.numero, lineas);
-      actualizarMesa({ ...mesaSeleccionada, estado: "OCUPADA" }); // Paso 5.
-      mostrarAviso("exito", `Pedido de la mesa ${mesaSeleccionada.numero} enviado a cocina.`);
-      terminarAtencionDeMesa();
+      await accion();
+      mostrarAviso("exito", exito);
+      await Promise.all([mesas.recargar(), listos.recargar()]);
     } catch (error) {
-      mostrarError((error as Error).message);
-      if (error instanceof ErrorDeApi && error.codigoHttp === CODIGO_CONFLICTO) {
-        await Promise.all([recargarMesas(), refrescarMenuYAjustarPedido()]);
+      mostrarError(error);
+      if (error instanceof ErrorDeApi && error.codigoHttp === CONFLICTO) {
+        await Promise.all([mesas.recargar(), refrescarMenuYAjustar()]);
       }
     } finally {
-      setEnviando(false);
+      setOcupado(false);
     }
   }
 
-  async function reiniciarDatos() {
-    try {
-      await reiniciarDatosDeDemostracion();
-      mostrarAviso("exito", "Datos de demostración reiniciados.");
-    } catch (error) {
-      mostrarError((error as Error).message);
-    }
-  }
+  // Pasos 4 y 5: confirmar; la mesa pasa a roja y el panel muestra el pedido recién creado.
+  const confirmarPedido = () => mesa && ejecutar(async () => {
+    await pedidosApi.registrar(mesa.numero, pedido.lineas);
+    pedido.vaciar();
+  }, `Pedido de la mesa ${mesa.numero} enviado a cocina.`);
+
+  const servir = (p: Pedido) =>
+    ejecutar(() => pedidosApi.entregar(p.id), `Mesa ${p.numeroMesa} servida.`);
+
+  const cancelar = (p: Pedido, motivo: string) =>
+    ejecutar(() => pedidosApi.cancelar(p.id, motivo), `Pedido de la mesa ${p.numeroMesa} cancelado.`);
+
+  const confirmarLlegada = (reservaId: number) => ejecutar(async () => {
+    await reservasApi.confirmarLlegada(reservaId);
+    void recargarMenu();
+  }, "Llegada confirmada. Ya puedes tomar el pedido.");
 
   return (
     <div className="mesero">
-      <BarraSuperior
-        mesaSeleccionada={mesaSeleccionada}
+      <EncabezadoApp
+        titulo="Restaurante El Buen Sabor"
+        centro={<span className="encabezado__contexto">{mesa ? `Mesa ${mesa.numero}` : "Selecciona una mesa"}</span>}
         conectado={conectado}
-        onReiniciarDatos={reiniciarDatos}
       />
+      <div className="mesero__avisos">
+        <AvisoCajaCerrada jornada={jornada} />
+        <AvisosListos pedidos={listos.datos} onServir={servir} />
+      </div>
       <MenuCategorias categoriaActiva={categoria} onCambiarCategoria={setCategoria} />
       <main className="mesero__centro">
-        <CuadriculaMesas
-          mesas={mesas}
-          numeroMesaSeleccionada={numeroMesaSeleccionada}
-          onSeleccionarMesa={seleccionarMesa}
-        />
+        <CuadriculaMesas mesas={mesas.datos} numeroMesaSeleccionada={numeroSeleccionado}
+                         onSeleccionarMesa={seleccionarMesa} />
         <ListaPlatos
           platos={platos}
           categoria={categoria}
-          lineas={lineas}
-          hayMesaSeleccionada={mesaSeleccionada !== null}
+          lineas={pedido.lineas}
+          hayMesaSeleccionada={mesa?.estado === "DISPONIBLE"}
           cargando={cargando}
-          onAgregarPlato={agregar}
+          onAgregarPlato={pedido.agregar}
         />
       </main>
-      <ResumenPedido
-        mesa={mesaSeleccionada}
-        lineas={lineas}
-        total={total}
-        enviando={enviando}
-        conectado={conectado}
-        onAgregarPlato={agregar}
-        onQuitarPlato={quitar}
-        onConfirmar={confirmarPedido}
-      />
+      {mesa?.estado === "OCUPADA" ? (
+        <PanelPedidoActivo mesa={mesa} ocupado={ocupado} onServir={servir} onCancelar={cancelar} />
+      ) : mesa?.estado === "RESERVADA" ? (
+        <PanelReserva mesa={mesa} ocupado={ocupado} onConfirmarLlegada={confirmarLlegada} />
+      ) : (
+        <ResumenPedido
+          mesa={mesa}
+          lineas={pedido.lineas}
+          total={pedido.total}
+          enviando={ocupado}
+          conectado={conectado}
+          cajaCerrada={cajaCerrada}
+          onAgregarPlato={pedido.agregar}
+          onQuitarPlato={pedido.quitar}
+          onConfirmar={confirmarPedido}
+        />
+      )}
       <Aviso aviso={aviso} />
     </div>
   );

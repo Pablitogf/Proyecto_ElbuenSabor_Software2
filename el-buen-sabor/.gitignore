@@ -3,7 +3,7 @@ __pycache__/
 *.pyc
 .venv/
 .pytest_cache/
-backend/el_buen_sabor.db
+backend/*.db
 
 # Node
 node_modules/

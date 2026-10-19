@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { mensajeDe } from "../api/clienteHttp";
 
 export type TipoAviso = "exito" | "error";
 
@@ -8,7 +9,7 @@ export interface Aviso {
   mensaje: string;
 }
 
-const DURACION_AVISO_MS = 4000;
+const DURACION_AVISO_MS = 4500;
 
 export function useAviso() {
   const [aviso, setAviso] = useState<Aviso | null>(null);
@@ -17,11 +18,13 @@ export function useAviso() {
     setAviso({ id: Date.now(), tipo, mensaje });
   }, []);
 
+  const mostrarError = useCallback((error: unknown) => mostrarAviso("error", mensajeDe(error)), [mostrarAviso]);
+
   useEffect(() => {
     if (!aviso) return;
     const temporizador = window.setTimeout(() => setAviso(null), DURACION_AVISO_MS);
     return () => window.clearTimeout(temporizador);
   }, [aviso]);
 
-  return { aviso, mostrarAviso };
+  return { aviso, mostrarAviso, mostrarError };
 }

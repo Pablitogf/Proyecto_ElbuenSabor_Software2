@@ -1,0 +1,22 @@
+@startuml C4_Contexto
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+LAYOUT_TOP_DOWN()
+title Nivel 1 · Contexto — Sistema El Buen Sabor
+
+Person(mesero, "Mesero", "Toma pedidos, sirve y recibe reservas")
+Person(cocinero, "Cocinero", "Prepara y despacha comandas")
+Person(cajero, "Cajero", "Cobra y factura")
+Person(admin, "Administrador", "Inventario, reservas, cierre de caja")
+
+System(sistema, "Sistema El Buen Sabor", "Aplicación web multi-rol: pedidos, cocina, caja, facturación, inventario y reservas")
+
+System_Ext(dian, "DIAN", "Web service de facturación electrónica")
+System_Ext(banco, "Entidad bancaria", "Pasarela de pagos con tarjeta")
+
+Rel(mesero, sistema, "Registra pedidos, confirma llegadas, marca servido", "HTTPS/WSS")
+Rel(cocinero, sistema, "Inicia preparación y marca listo", "HTTPS/WSS")
+Rel(cajero, sistema, "Cobra y reenvía facturas", "HTTPS")
+Rel(admin, sistema, "Gestiona inventario, reservas y cierre", "HTTPS")
+Rel(sistema, dian, "Envía factura UBL 2.1 y reporte diario", "SOAP / TLS 1.3")
+Rel(sistema, banco, "Autoriza pagos con tarjeta", "REST / TLS 1.3")
+@enduml

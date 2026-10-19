@@ -7,28 +7,25 @@
   color: #fff;
 }
 
-.cocina__encabezado {
-  display: flex;
-  align-items: center;
-  gap: 24px;
-  padding: 18px 28px;
-  background: var(--verde-oscuro);
-}
-
-.cocina__encabezado h1 {
-  font-size: 1.6rem;
+.cocina {
+  position: relative;
 }
 
 .cocina__contador {
-  margin-right: auto;
   padding: 4px 12px;
   border-radius: 999px;
   background: rgb(255 255 255 / 0.15);
   font-weight: 600;
 }
 
+.cocina__centro {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
 .cocina__reloj {
-  font-size: 1.8rem;
+  font-size: 1.6rem;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
@@ -58,10 +55,16 @@
 }
 
 .comanda {
+  display: flex;
+  flex-direction: column;
   border-radius: var(--radio-tarjeta);
   background: var(--superficie);
   color: var(--tinta);
   overflow: hidden;
+}
+
+.comanda--lista {
+  opacity: 0.75;
 }
 
 .comanda--nueva {
@@ -122,7 +125,7 @@
 
 .comanda__platos {
   margin: 0;
-  padding: 10px 18px 18px;
+  padding: 8px 12px 12px;
   list-style: none;
 }
 
@@ -130,15 +133,46 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 8px 0;
+  width: 100%;
+  min-height: 48px;
+  padding: 8px 6px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
   font-size: 1.15rem;
+  text-align: left;
 }
 
-.comanda__punto {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: var(--ambar);
+.comanda__plato:not(:disabled):hover {
+  background: var(--fondo);
+}
+
+.comanda__plato:disabled {
+  cursor: default;
+  color: inherit;
+}
+
+.comanda__plato[aria-pressed="true"] {
+  color: var(--tinta-suave);
+  text-decoration: line-through;
+}
+
+.comanda__pie {
+  margin-top: auto;
+  padding: 0 18px 18px;
+}
+
+.comanda__ayuda {
+  margin-top: 8px;
+  color: var(--tinta-suave);
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.comanda__notificado {
+  background: var(--verde-claro);
+  color: var(--verde-oscuro);
+  opacity: 1 !important;
 }
 
 .comanda__cantidad {

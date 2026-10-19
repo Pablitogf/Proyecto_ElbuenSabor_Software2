@@ -8,12 +8,14 @@ interface Props {
   total: number;
   enviando: boolean;
   conectado: boolean;
+  cajaCerrada: boolean;
   onAgregarPlato: (plato: Plato) => void;
   onQuitarPlato: (platoId: number) => void;
   onConfirmar: () => void;
 }
 
 function motivoParaNoConfirmar(props: Props): string | null {
+  if (props.cajaCerrada) return "La caja está cerrada.";
   if (!props.mesa) return "Selecciona una mesa libre.";
   if (props.lineas.length === 0) return "Agrega al menos un plato.";
   if (!props.conectado) return "Sin conexión con cocina. Espera a que vuelva.";
@@ -70,7 +72,7 @@ export function ResumenPedido(props: Props) {
         </p>
         <button
           type="button"
-          className="resumen__confirmar"
+          className="boton boton--primario boton--grande"
           disabled={motivoBloqueo !== null || enviando}
           onClick={onConfirmar}
         >

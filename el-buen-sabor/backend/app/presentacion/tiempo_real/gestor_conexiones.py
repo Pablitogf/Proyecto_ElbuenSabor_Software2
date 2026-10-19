@@ -6,7 +6,7 @@ registro = logging.getLogger(__name__)
 
 
 class GestorConexiones:
-    """Mantiene las pantallas conectadas (tablets y cocina) y les difunde eventos."""
+    """Mantiene las pantallas conectadas (tablets, cocina, caja, administración)."""
 
     def __init__(self) -> None:
         self._conexiones: set[WebSocket] = set()
@@ -18,8 +18,7 @@ class GestorConexiones:
     def desconectar(self, conexion: WebSocket) -> None:
         self._conexiones.discard(conexion)
 
-    async def difundir(self, tipo: str, datos: dict) -> None:
-        mensaje = {"tipo": tipo, "datos": datos}
+    async def difundir(self, mensaje: dict) -> None:
         for conexion in list(self._conexiones):
             try:
                 await conexion.send_json(mensaje)

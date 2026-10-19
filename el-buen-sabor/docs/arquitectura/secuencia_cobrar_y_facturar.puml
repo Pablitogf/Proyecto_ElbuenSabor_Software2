@@ -1,0 +1,40 @@
+@startuml Secuencia_Cobro_Factura
+title Diagrama 3 (corregido) · Cobrar cuenta y facturar — F-02 / F-03
+actor Cajero
+participant "PaginaCaja\n(IU-03)" as UI
+participant "GestorCobros" as GC
+participant "Pedido\n(State)" as P
+participant "FabricaEstrategiasPago\n(Strategy)" as FE
+participant "EmisorDeFacturas\n(Factory)" as EF
+participant "Pasarela\n(Adapter)" as PB
+database "UnidadDeTrabajo" as UOW
+participant "GestorFacturacion" as GF
+participant "Servicio DIAN\n(Adapter + Builder)" as DIAN
+
+Cajero -> UI : elige medio de pago y registra
+UI -> GC : cobrar(pedidoId, lineasDePago)
+GC -> UOW : jornada.exigir_abierta()
+GC -> P : registrar_pago()\n(solo si ENTREGADO → PAGADO)
+GC -> GC : validar_desglose(lineas, total)
+GC -> UOW : mesa.liberar()
+GC -> EF : emitir(pedido)\nconsecutivo + desglose impuesto + CUFE (SHA-384)
+GC -> FE : para(metodo).procesar(linea)
+FE -> PB : autorizar(monto)  <<tarjeta de última>>
+alt tarjeta rechazada (CU-02 5a)
+  PB --> FE : rechazada
+  FE --> GC : PagoRechazadoError
+  GC -> UOW : rollback (no queda nada registrado)
+  GC --> UI : 409 "Intenta con otro medio de pago"
+else aprobada
+  GC -> UOW : guardar pago, factura, pedido, mesa\nconfirmar()
+  GC -> GF : enviar_a_dian(facturaId)
+  GF -> DIAN : enviar_factura(XML UBL 2.1)
+  alt DIAN valida el CUFE
+    DIAN --> GF : acuse
+    GF -> P : facturar()  (PAGADO → FACTURADO, RD-05)
+  else DIAN no responde
+    GF -> GF : factura PENDIENTE_DIAN\n(reintento desde caja; bloquea el cierre)
+  end
+  GF --> UI : factura + estado DIAN
+end
+@enduml

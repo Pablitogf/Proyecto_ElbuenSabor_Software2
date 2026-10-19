@@ -1,0 +1,169 @@
+/* Piezas compartidas por todas las pantallas. */
+
+/* ── Encabezado ─────────────────────────────────────────────────────────── */
+.encabezado {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  background: var(--verde);
+  color: #fff;
+}
+.encabezado--oscuro { background: var(--verde-oscuro); }
+.encabezado__marca { font-size: 1.15rem; font-weight: 600; }
+.encabezado__contexto { font-size: 1.2rem; font-weight: 700; }
+.encabezado__acciones { position: relative; display: flex; justify-content: flex-end; align-items: center; gap: 14px; }
+.encabezado__usuario {
+  display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 4px 10px 4px 4px;
+  border: 0; border-radius: 999px; background: rgb(255 255 255 / 0.12); color: #fff; text-align: left;
+}
+.encabezado__usuario:hover { background: rgb(255 255 255 / 0.22); }
+.encabezado__avatar {
+  display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%;
+  background: #fff; color: var(--verde-oscuro); font-weight: 700;
+}
+.encabezado__nombre { display: flex; flex-direction: column; font-size: 0.9rem; line-height: 1.15; }
+.encabezado__nombre small { opacity: 0.8; font-size: 0.75rem; }
+.menu-usuario {
+  position: absolute; top: calc(100% + 8px); right: 0; z-index: 20; display: flex; flex-direction: column;
+  min-width: 240px; padding: 6px; border-radius: var(--radio-control); background: var(--superficie);
+  box-shadow: 0 8px 28px rgb(0 0 0 / 0.18);
+}
+.menu-usuario button {
+  min-height: 44px; padding: 10px 14px; border: 0; border-radius: 8px; background: none;
+  color: var(--tinta); text-align: left;
+}
+.menu-usuario button:hover { background: var(--verde-claro); }
+.menu-usuario__salir { border-top: 1px solid var(--borde) !important; border-radius: 0 0 8px 8px !important; color: var(--rojo) !important; }
+
+/* ── Botones (RNF-03: mínimo 44 × 44 px) ───────────────────────────────── */
+.boton {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 44px; padding: 10px 18px; border: 1px solid transparent; border-radius: var(--radio-control);
+  font-weight: 600; transition: background-color 150ms ease;
+}
+.boton:disabled { opacity: 0.55; }
+.boton--primario { background: var(--verde); color: #fff; }
+.boton--primario:hover:not(:disabled) { background: var(--verde-oscuro); }
+.boton--secundario { background: var(--superficie); border-color: var(--borde); color: var(--verde-oscuro); }
+.boton--secundario:hover:not(:disabled) { background: var(--verde-claro); }
+.boton--peligro { background: var(--rojo); color: #fff; }
+.boton--peligro-suave { background: var(--superficie); border-color: #f1c4c2; color: var(--rojo); }
+.boton--peligro-suave:hover:not(:disabled) { background: var(--rojo-claro); }
+.boton--blanco { background: #fff; color: var(--verde-oscuro); }
+.boton--enlace { min-height: 44px; padding: 0 8px; background: none; color: var(--verde-oscuro); text-decoration: underline; }
+.boton--grande { width: 100%; min-height: 58px; font-size: 1.15rem; }
+.boton--chico { min-height: 36px; padding: 6px 12px; font-size: 0.85rem; }
+.boton--chip {
+  min-height: 40px; padding: 6px 12px; border-color: var(--borde); border-radius: 999px;
+  background: var(--fondo); color: var(--tinta); font-variant-numeric: tabular-nums;
+}
+.fila-botones { display: flex; gap: 10px; }
+.fila-botones--derecha { justify-content: flex-end; margin-top: 8px; }
+
+/* ── Campos de formulario ───────────────────────────────────────────────── */
+.campo {
+  width: 100%; min-height: 44px; padding: 10px 12px; border: 1px solid var(--borde);
+  border-radius: var(--radio-control); background: #fff; font: inherit; color: var(--tinta);
+}
+.campo:focus { border-color: var(--verde); outline: 3px solid rgb(47 155 87 / 0.2); }
+.campo--dinero { font-size: 1.25rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+.campo-etiquetado { display: flex; flex-direction: column; gap: 6px; font-size: 0.9rem; font-weight: 600; color: var(--tinta-suave); }
+.campo-etiquetado .campo { font-weight: 400; color: var(--tinta); }
+.formulario { display: flex; flex-direction: column; gap: 14px; }
+.formulario--en-linea { flex-direction: row; align-items: flex-end; }
+.formulario--en-linea .campo-etiquetado { flex: 1; }
+.formulario__fila { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.formulario__fila--tres { grid-template-columns: 1fr 1.4fr 1fr; }
+.formulario__ayuda { color: var(--tinta-suave); font-size: 0.85rem; }
+.casilla { display: flex; align-items: center; gap: 10px; min-height: 44px; font-weight: 600; }
+.casilla input { width: 22px; height: 22px; accent-color: var(--verde); }
+
+/* ── Insignias y puntos de estado ──────────────────────────────────────── */
+.insignia {
+  display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 0.78rem; font-weight: 700;
+  white-space: nowrap; background: var(--fondo); color: var(--tinta-suave);
+}
+.insignia--lista, .insignia--entregado, .insignia--reserva-cumplida, .insignia--mov-entrada { background: var(--verde-claro); color: var(--verde-oscuro); }
+.insignia--alerta, .insignia--reservada, .insignia--registrado, .insignia--reserva-pendiente { background: var(--ambar-claro); color: var(--ambar-oscuro); }
+.insignia--peligro, .insignia--mov-merma { background: var(--rojo-claro); color: var(--rojo); }
+.insignia--en_preparacion, .insignia--mov-salida_pedido { background: var(--azul-claro); color: var(--azul-oscuro); }
+.insignia--listo_para_servir { background: var(--verde); color: #fff; }
+.punto { display: inline-block; flex: none; width: 12px; height: 12px; border-radius: 50%; }
+.punto--ambar { background: var(--ambar); }
+.punto--verde { background: var(--verde); }
+
+/* ── Tablas ─────────────────────────────────────────────────────────────── */
+.tabla { width: 100%; border-collapse: collapse; background: var(--superficie); border-radius: var(--radio-control); overflow: hidden; }
+.tabla th, .tabla td { padding: 10px 12px; border-bottom: 1px solid var(--borde); text-align: left; vertical-align: middle; }
+.tabla th { background: #f4f6f5; color: var(--tinta-suave); font-size: 0.78rem; font-weight: 700; }
+.tabla .num { text-align: right; font-variant-numeric: tabular-nums; }
+.tabla tfoot td { font-weight: 700; font-size: 1.05rem; border-bottom: 0; }
+.tabla--compacta td, .tabla--compacta th { padding: 8px 10px; }
+.tabla__acciones { text-align: right; white-space: nowrap; }
+.tabla__acciones .boton { margin-left: 4px; }
+.fila--alerta td:first-child { box-shadow: inset 4px 0 0 var(--ambar); }
+.texto-suave { color: var(--tinta-suave); font-size: 0.88rem; }
+.texto-peligro { color: var(--rojo); font-weight: 700; }
+.texto-alerta { color: var(--ambar-oscuro); font-weight: 700; }
+
+/* ── Pestañas y control segmentado ──────────────────────────────────────── */
+.pestanas { display: flex; gap: 4px; margin-bottom: 14px; border-bottom: 1px solid var(--borde); }
+.pestanas button { min-height: 44px; padding: 10px 16px; border: 0; border-bottom: 3px solid transparent; background: none; font-weight: 600; color: var(--tinta-suave); }
+.pestanas button[aria-selected="true"] { border-bottom-color: var(--verde); color: var(--verde-oscuro); }
+.segmentado { display: flex; padding: 4px; border-radius: var(--radio-control); background: var(--fondo); }
+.segmentado button { flex: 1; min-height: 44px; border: 0; border-radius: 8px; background: none; font-weight: 600; color: var(--tinta-suave); }
+.segmentado button[aria-pressed="true"] { background: var(--superficie); color: var(--verde-oscuro); box-shadow: var(--sombra); }
+
+/* ── Modal ──────────────────────────────────────────────────────────────── */
+.modal-fondo { position: fixed; inset: 0; z-index: 30; display: grid; place-items: center; padding: 16px; background: rgb(15 25 19 / 0.45); }
+.modal { width: min(520px, 100%); max-height: 90vh; overflow-y: auto; padding: 20px 22px 22px; border-radius: var(--radio-tarjeta); background: var(--superficie); box-shadow: 0 20px 60px rgb(0 0 0 / 0.3); }
+.modal--amplio { width: min(760px, 100%); }
+.modal__encabezado { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.modal__encabezado h2 { font-size: 1.2rem; }
+.modal__cerrar { width: 44px; height: 44px; border: 0; border-radius: 50%; background: none; font-size: 1.6rem; color: var(--tinta-suave); }
+.modal__cerrar:hover { background: var(--fondo); }
+
+/* ── Avisos de estado ───────────────────────────────────────────────────── */
+.aviso-caja-cerrada { padding: 12px 20px; background: var(--rojo-claro); color: var(--rojo); font-weight: 600; text-align: center; }
+.caja-mensajes { display: flex; flex-direction: column; gap: 10px; margin: 14px 0; padding: 14px 16px; border-radius: var(--radio-control); }
+.caja-mensajes ul { margin: 0; padding-left: 20px; }
+.caja-mensajes--peligro { background: var(--rojo-claro); color: #8e2421; }
+.caja-mensajes--alerta { background: var(--ambar-claro); color: var(--ambar-oscuro); }
+
+/* ── Página simple (reservas desde la tablet) ──────────────────────────── */
+.pagina-simple { min-height: 100vh; }
+.pagina-simple__contenido { max-width: 980px; margin: 0 auto; padding: 24px 16px; }
+
+/* ── Agenda de reservas (F-06) ──────────────────────────────────────────── */
+.agenda__encabezado { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+.agenda__encabezado > div { margin-right: auto; }
+.agenda__encabezado h2 { font-size: 1.3rem; }
+.agenda__encabezado .campo { width: auto; }
+.agenda__resumen, .agenda__vacia { color: var(--tinta-suave); }
+.agenda__vacia { padding: 40px 0; text-align: center; }
+.agenda__lista { display: flex; flex-direction: column; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.reserva {
+  display: grid; grid-template-columns: 120px minmax(0, 1fr) auto; grid-template-areas: "hora cliente estado" "hora acciones acciones";
+  align-items: center; gap: 6px 16px; padding: 14px 16px; border: 1px solid var(--borde); border-left: 5px solid var(--ambar);
+  border-radius: var(--radio-control); background: var(--superficie);
+}
+.reserva--cumplida { border-left-color: var(--verde); }
+.reserva--cancelada, .reserva--no_asistio { border-left-color: var(--borde); opacity: 0.7; }
+.reserva--vencida { border-left-color: var(--rojo); }
+.reserva__hora { grid-area: hora; display: flex; flex-direction: column; }
+.reserva__hora strong { font-size: 1.25rem; }
+.reserva__hora span { color: var(--tinta-suave); font-size: 0.8rem; }
+.reserva__cliente { grid-area: cliente; display: flex; flex-direction: column; }
+.reserva__cliente span, .reserva__cliente em { color: var(--tinta-suave); font-size: 0.88rem; }
+.reserva > .insignia { grid-area: estado; }
+.reserva__acciones { grid-area: acciones; display: flex; gap: 6px; flex-wrap: wrap; }
+
+@media (max-width: 640px) {
+  .encabezado { grid-template-columns: 1fr auto; }
+  .encabezado__marca, .encabezado__nombre { display: none; }
+  .formulario__fila, .formulario__fila--tres { grid-template-columns: 1fr; }
+  .formulario--en-linea { flex-direction: column; align-items: stretch; }
+  .reserva { grid-template-columns: 1fr; grid-template-areas: "hora" "cliente" "estado" "acciones"; }
+}

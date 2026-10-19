@@ -1,0 +1,50 @@
+@startuml C4_Componentes
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+LAYOUT_TOP_DOWN()
+title Nivel 3 · Componentes — API (arquitectura limpia por capas)
+
+Container(spa, "Aplicación web", "React")
+ContainerDb(bd, "Base de datos", "SQLite / PostgreSQL")
+System_Ext(dian, "DIAN")
+System_Ext(banco, "Entidad bancaria")
+
+Container_Boundary(api, "API y tiempo real") {
+  Component(rutas, "Rutas REST + RBAC", "presentacion/rutas", "Traduce HTTP a casos de uso; exige permisos por endpoint")
+  Component(ws, "Difusor WebSocket", "presentacion/tiempo_real", "Suscriptor del bus: reenvía eventos a las pantallas")
+  Component(contenedor, "Contenedor de dependencias", "contenedor.py", "Raíz de composición: conecta puertos con adaptadores")
+
+  Component(gPedidos, "GestorPedidos", "aplicacion", "F-01 registrar, entregar, cancelar")
+  Component(gCocina, "GestorCocina", "aplicacion", "F-05 preparar y despachar")
+  Component(gCobros, "GestorCobros", "aplicacion", "F-02 cobro con estrategias de pago")
+  Component(gFact, "GestorFacturacion", "aplicacion", "F-03 envío y reintento DIAN")
+  Component(gJornada, "GestorJornada", "aplicacion", "Resumen y cierre de caja")
+  Component(gInv, "GestorInventario", "aplicacion", "F-04 kardex, mínimos, sugerencia")
+  Component(gRes, "GestorReservas", "aplicacion", "F-06 agenda y asignación de mesa")
+
+  Component(dominio, "Dominio", "dominio/", "Entidades y reglas: Pedido (State), Inventario, Factura, Jornada, Reserva, AgendaDeMesas")
+  Component(bus, "Bus de eventos", "infraestructura/eventos", "Observer en memoria")
+  Component(repos, "Repositorios + Unidad de trabajo", "infraestructura/base_de_datos", "Repository, Unit of Work, Data Mapper")
+  Component(adDian, "Adaptador DIAN", "infraestructura/integraciones/dian", "Builder XML UBL 2.1 + validación de CUFE")
+  Component(adBanco, "Adaptador pasarela", "infraestructura/integraciones", "Autorización de tarjeta")
+}
+
+Rel(spa, rutas, "JSON", "HTTPS")
+Rel(ws, spa, "Eventos", "WSS")
+Rel(rutas, gPedidos, "")
+Rel(rutas, gCocina, "")
+Rel(rutas, gCobros, "")
+Rel(rutas, gJornada, "")
+Rel(rutas, gInv, "")
+Rel(rutas, gRes, "")
+Rel(gCobros, gFact, "Envía la factura emitida")
+Rel(gPedidos, dominio, "Aplica reglas")
+Rel(gCobros, dominio, "Aplica reglas")
+Rel(gPedidos, repos, "Puerto UnidadDeTrabajo")
+Rel(gCobros, adBanco, "Puerto PasarelaDePagos")
+Rel(gFact, adDian, "Puerto ServicioFacturacionElectronica")
+Rel(gPedidos, bus, "Publica eventos")
+Rel(bus, ws, "Notifica")
+Rel(repos, bd, "SQL", "SQLAlchemy")
+Rel(adDian, dian, "SOAP")
+Rel(adBanco, banco, "REST")
+@enduml

@@ -1,0 +1,50 @@
+/* IU-03 · Módulo de caja: lista de cuentas a la izquierda, cobro a la derecha. */
+.caja { display: flex; flex-direction: column; min-height: 100vh; }
+.caja__cuerpo { flex: 1; display: grid; grid-template-columns: 340px minmax(0, 1fr); min-height: 0; }
+.caja__cuentas { padding: 20px 16px; background: var(--superficie); border-right: 1px solid var(--borde); }
+.caja__principal { display: flex; flex-direction: column; gap: 18px; padding: 20px 24px 32px; max-width: 1000px; }
+.caja__subtitulo { margin-bottom: 10px; font-size: 1.05rem; }
+.caja__vacio, .caja__indicacion { color: var(--tinta-suave); }
+.caja__indicacion { padding: 40px 0; font-size: 1.1rem; text-align: center; }
+
+.cuentas { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.cuenta {
+  display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; width: 100%; padding: 12px 14px;
+  border: 2px solid var(--borde); border-radius: var(--radio-control); background: var(--superficie); text-align: left;
+}
+.cuenta[aria-pressed="true"] { border-color: var(--verde); background: var(--verde-claro); }
+.cuenta:not(.cuenta--lista) { opacity: 0.75; }
+.cuenta__mesa { font-weight: 700; font-size: 1.1rem; }
+.cuenta__total { justify-self: end; font-weight: 700; font-variant-numeric: tabular-nums; }
+.cuenta__detalle { color: var(--tinta-suave); font-size: 0.85rem; }
+.cuenta .insignia { justify-self: end; }
+
+.cobro { display: flex; flex-direction: column; gap: 16px; padding: 20px; border-radius: var(--radio-tarjeta); background: var(--superficie); box-shadow: var(--sombra); }
+.cobro__titulo { font-size: 1.25rem; }
+.cobro__metodo { display: flex; flex-direction: column; gap: 14px; margin: 0; padding: 0; border: 0; }
+.cobro__metodo legend { margin-bottom: 8px; font-weight: 700; }
+.cobro__resumen { display: grid; grid-template-columns: auto auto; justify-content: end; gap: 4px 20px; margin: 0; font-size: 1.1rem; }
+.cobro__resumen dt { color: var(--tinta-suave); }
+.cobro__resumen dd { margin: 0; font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; }
+.cobro__cambio { color: var(--verde-oscuro); font-size: 1.5rem; }
+.cobro__problema { color: var(--rojo); font-weight: 600; text-align: center; }
+.sugerencias-billetes { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.comprobante {
+  display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 14px 18px;
+  border-left: 6px solid var(--verde); border-radius: var(--radio-control); background: var(--verde-claro);
+}
+.comprobante--pendiente { border-left-color: var(--ambar); background: var(--ambar-claro); }
+.comprobante__titulo { font-weight: 700; }
+.comprobante__detalle { font-size: 0.92rem; }
+.comprobante__cufe { color: var(--tinta-suave); font-family: ui-monospace, Consolas, monospace; font-size: 0.78rem; }
+.comprobante__estado { font-weight: 700; text-align: right; max-width: 40%; }
+.xml { max-height: 60vh; overflow: auto; padding: 14px; border-radius: var(--radio-control); background: #10201a; color: #c9f2d6; font-size: 0.78rem; }
+
+@media (max-width: 900px) {
+  .caja__cuerpo { grid-template-columns: minmax(0, 1fr); }
+  .caja__cuentas { border-right: 0; border-bottom: 1px solid var(--borde); }
+  .caja__principal { padding: 16px; }
+  .comprobante { flex-direction: column; align-items: flex-start; }
+  .comprobante__estado { max-width: none; text-align: left; }
+}

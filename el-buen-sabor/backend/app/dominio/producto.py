@@ -12,7 +12,7 @@ class Categoria(str, Enum):
 
 @dataclass(frozen=True)
 class IngredienteDeReceta:
-    """Cantidad de un ingrediente que consume UNA porción del producto."""
+    """Cantidad de un ingrediente que consume UNA porción del producto (RF-05)."""
 
     ingrediente_id: int
     cantidad_por_porcion: float
@@ -23,7 +23,7 @@ class ProductoMenu:
     id: int
     nombre: str
     descripcion: str
-    precio: int  # Pesos colombianos (COP), sin decimales.
+    precio: int  # Pesos colombianos, impuestos incluidos (precio al público).
     categoria: Categoria
     icono: str
     activo: bool = True

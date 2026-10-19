@@ -5,46 +5,53 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.aplicacion.puertos import Reloj
 from app.configuracion import Configuracion
-from app.infraestructura.base_de_datos.conexion import crear_fabrica_de_sesiones, crear_motor
+from app.contenedor import Contenedor
 from app.infraestructura.base_de_datos.datos_iniciales import inicializar_base_de_datos
 from app.presentacion.manejo_de_errores import registrar_manejadores_de_error
-from app.presentacion.rutas import comandas, demostracion, menu, mesas, pedidos, tiempo_real
+from app.presentacion.rutas import (
+    caja,
+    cocina,
+    demostracion,
+    inventario,
+    pedidos,
+    reservas,
+    salon,
+    sesion,
+    tiempo_real,
+)
+from app.presentacion.tiempo_real.difusor_eventos import DifusorDeEventos
 from app.presentacion.tiempo_real.gestor_conexiones import GestorConexiones
 
 ENRUTADORES = [
-    mesas.enrutador,
-    menu.enrutador,
-    pedidos.enrutador,
-    comandas.enrutador,
-    tiempo_real.enrutador,
-    demostracion.enrutador,
+    sesion.enrutador, salon.enrutador, pedidos.enrutador, cocina.enrutador, caja.enrutador,
+    inventario.enrutador, reservas.enrutador, demostracion.enrutador, tiempo_real.enrutador,
 ]
 
 
-def crear_aplicacion(configuracion: Configuracion | None = None) -> FastAPI:
-    configuracion = configuracion or Configuracion()
-    motor = crear_motor(configuracion.url_base_datos)
+def crear_aplicacion(configuracion: Configuracion | None = None, reloj: Reloj | None = None) -> FastAPI:
+    contenedor = Contenedor(configuracion or Configuracion(), reloj)
+    conexiones = GestorConexiones()
+    contenedor.bus.suscribir(DifusorDeEventos(conexiones))  # Observer: eventos → pantallas.
 
     @asynccontextmanager
     async def ciclo_de_vida(_: FastAPI):
-        inicializar_base_de_datos(motor)
+        inicializar_base_de_datos(contenedor.motor, contenedor.reloj.ahora())
         yield
-        motor.dispose()
+        contenedor.motor.dispose()
 
     aplicacion = FastAPI(
-        title="El Buen Sabor — API de pedidos",
-        description="Vertical slice F-01: Registrar pedido desde la tablet del mesero.",
-        version="0.1.0",
+        title="El Buen Sabor — API",
+        description="Pedidos, cocina, caja, facturación DIAN, inventario y reservas (F-01 a F-06).",
+        version="0.2.0",
         lifespan=ciclo_de_vida,
     )
-    aplicacion.state.motor = motor
-    aplicacion.state.fabrica_de_sesiones = crear_fabrica_de_sesiones(motor)
-    aplicacion.state.gestor_conexiones = GestorConexiones()
-
+    aplicacion.state.contenedor = contenedor
+    aplicacion.state.conexiones = conexiones
     aplicacion.add_middleware(
         CORSMiddleware,
-        allow_origins=configuracion.origenes_permitidos,
+        allow_origins=contenedor.configuracion.origenes_permitidos,
         allow_methods=["*"],
         allow_headers=["*"],
     )

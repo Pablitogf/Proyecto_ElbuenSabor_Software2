@@ -1,58 +1,59 @@
 import { useEffect, useRef, useState } from "react";
-import type { EventoJson } from "../api/contratosApi";
-import { aEvento } from "../api/traductores";
 import type { EventoTiempoReal } from "../dominio/tipos";
+import { useSesion } from "../sesion/ContextoSesion";
 
 const ESPERA_PARA_RECONECTAR_MS = 2000;
 
-function direccionDelServidorDeEventos(): string {
+function direccion(token: string): string {
   const protocolo = window.location.protocol === "https:" ? "wss" : "ws";
-  return `${protocolo}://${window.location.host}/ws/eventos`;
+  return `${protocolo}://${window.location.host}/ws/eventos?token=${encodeURIComponent(token)}`;
 }
 
 /** Cierra la conexión aunque aún esté conectándose, sin disparar la reconexión. */
 function cerrarSinAvisos(conexion: WebSocket) {
   conexion.onclose = null;
-  if (conexion.readyState === WebSocket.CONNECTING) {
-    conexion.onopen = () => conexion.close();
-  } else {
-    conexion.close();
-  }
+  if (conexion.readyState === WebSocket.CONNECTING) conexion.onopen = () => conexion.close();
+  else conexion.close();
 }
 
 /**
- * Escucha los eventos del backend por WebSocket y se reconecta solo si se cae.
- * Devuelve si la pantalla está conectada (RF-02 exige conexión para enviar comandas).
+ * Escucha los eventos del backend (patrón Observer del lado del cliente) y se
+ * reconecta sola. Devuelve si la pantalla está en línea (RF-02).
  */
-export function useEventosTiempoReal(alRecibirEvento: (evento: EventoTiempoReal) => void) {
+export function useEventosTiempoReal(alRecibir: (evento: EventoTiempoReal) => void): boolean {
+  const { token } = useSesion();
   const [conectado, setConectado] = useState(false);
-  const manejadorActual = useRef(alRecibirEvento);
-  manejadorActual.current = alRecibirEvento;
+  const manejador = useRef(alRecibir);
+  manejador.current = alRecibir;
 
   useEffect(() => {
+    if (!token) return;
     let conexion: WebSocket;
     let temporizador: number | undefined;
-    let desmontado = false;
+    let activo = true;
 
     function conectar() {
-      conexion = new WebSocket(direccionDelServidorDeEventos());
+      conexion = new WebSocket(direccion(token!));
       conexion.onopen = () => setConectado(true);
-      conexion.onmessage = (mensaje) => {
-        manejadorActual.current(aEvento(JSON.parse(mensaje.data) as EventoJson));
-      };
+      conexion.onmessage = (mensaje) => manejador.current(JSON.parse(mensaje.data) as EventoTiempoReal);
       conexion.onclose = () => {
         setConectado(false);
-        if (!desmontado) temporizador = window.setTimeout(conectar, ESPERA_PARA_RECONECTAR_MS);
+        if (activo) temporizador = window.setTimeout(conectar, ESPERA_PARA_RECONECTAR_MS);
       };
     }
 
     conectar();
     return () => {
-      desmontado = true;
+      activo = false;
       window.clearTimeout(temporizador);
       cerrarSinAvisos(conexion);
     };
-  }, []);
+  }, [token]);
 
   return conectado;
+}
+
+/** Ayuda para reaccionar solo a ciertos tipos de evento. */
+export function esEvento(evento: EventoTiempoReal, ...tipos: string[]): boolean {
+  return tipos.includes(evento.tipo);
 }

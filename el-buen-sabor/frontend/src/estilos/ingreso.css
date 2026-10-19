@@ -1,0 +1,28 @@
+.ingreso {
+  display: grid; place-items: center; min-height: 100vh; padding: 16px;
+  background: radial-gradient(circle at 20% 10%, #3aa865 0, var(--verde-oscuro) 60%);
+}
+.ingreso__tarjeta { width: min(560px, 100%); padding: 32px 28px; border-radius: 20px; background: var(--superficie); box-shadow: 0 24px 60px rgb(0 0 0 / 0.25); }
+.ingreso__marca { font-size: 2rem; color: var(--verde-oscuro); text-align: center; }
+.ingreso__subtitulo { margin: 4px 0 22px; color: var(--tinta-suave); text-align: center; }
+.ingreso__usuarios { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.ingreso__usuario {
+  display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 14px 6px;
+  border: 2px solid var(--borde); border-radius: var(--radio-tarjeta); background: var(--superficie); font-size: 0.85rem;
+}
+.ingreso__usuario small { color: var(--tinta-suave); }
+.ingreso__usuario[aria-pressed="true"] { border-color: var(--verde); background: var(--verde-claro); }
+.ingreso__icono { font-size: 1.8rem; }
+.ingreso__pin { display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 22px; }
+.ingreso__pin label { font-weight: 600; }
+.ingreso__pin input {
+  width: 180px; padding: 8px; border: 0; border-bottom: 3px solid var(--verde); background: none;
+  font-size: 2rem; letter-spacing: 0.6em; text-align: center;
+}
+.ingreso__pin input:focus { outline: none; }
+.teclado { display: grid; grid-template-columns: repeat(3, 72px); gap: 8px; }
+.teclado button { height: 56px; border: 1px solid var(--borde); border-radius: 12px; background: var(--fondo); font-size: 1.3rem; font-weight: 600; }
+.teclado button:active { background: var(--verde-claro); }
+.ingreso__error { margin-top: 14px; color: var(--rojo); font-weight: 600; text-align: center; }
+.ingreso__ayuda { margin-top: 20px; color: var(--tinta-suave); font-size: 0.8rem; text-align: center; }
+@media (max-width: 520px) { .ingreso__usuarios { grid-template-columns: repeat(2, 1fr); } }
