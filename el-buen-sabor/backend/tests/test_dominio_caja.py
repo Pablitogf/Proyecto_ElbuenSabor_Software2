@@ -11,7 +11,7 @@ from app.dominio.excepciones import (
     PagoInvalidoError,
     ResolucionAgotadaError,
 )
-from app.dominio.factura import EstadoFactura, Factura, ResolucionDIAN, calcular_cufe
+from app.dominio.factura import EmisorDeFacturas, EstadoFactura, Factura, ResolucionDIAN, calcular_cufe
 from app.dominio.impuestos import IMPUESTO_CONSUMO_8, IVA_19
 from app.dominio.jornada import CuadreDeCaja, Jornada
 from app.dominio.pago import LineaPago, MetodoPago, Pago, SolicitudLineaPago, validar_desglose
@@ -122,3 +122,23 @@ class TestCierreDeCaja:
         jornada.cerrar(self.cuadre(270000).generar_reporte(), False, AHORA, 4)
         with pytest.raises(JornadaCerradaError):
             jornada.exigir_abierta()
+
+
+class TestEmisorDeFacturas:
+    """Posibles gracias a la refactorización de H-02: el emisor ya no necesita base de datos."""
+
+    def test_empieza_en_el_inicio_de_la_resolucion(self):
+        emisor = EmisorDeFacturas(RESOLUCION, IVA_19)
+        assert emisor.emitir(pedido_de(119000), ultimo_consecutivo=0, ahora=AHORA).numero == "FEBS1001"
+
+    def test_toma_el_siguiente_al_ultimo_emitido(self):
+        emisor = EmisorDeFacturas(RESOLUCION, IVA_19)
+        assert emisor.emitir(pedido_de(119000), ultimo_consecutivo=1001, ahora=AHORA).numero == "FEBS1002"
+
+    def test_respeta_el_fin_del_rango_autorizado(self):
+        with pytest.raises(ResolucionAgotadaError):
+            EmisorDeFacturas(RESOLUCION, IVA_19).emitir(pedido_de(119000), ultimo_consecutivo=1002, ahora=AHORA)
+
+    def test_no_guarda_nada_por_si_solo(self):
+        factura = EmisorDeFacturas(RESOLUCION, IVA_19).emitir(pedido_de(119000), 0, AHORA)
+        assert factura.id is None  # Sin id: solo un repositorio puede persistirla.

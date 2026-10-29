@@ -1,18 +1,22 @@
 """Cobro de la cuenta de una mesa (F-02, CU-02 pasos 2-6, Contrato 3)."""
 
 from dataclasses import dataclass
+from datetime import datetime
 
 from app.aplicacion.casos_de_uso.caja.estrategias_pago import (
     FabricaEstrategiasPago,
     orden_de_procesamiento,
 )
-from app.aplicacion.casos_de_uso.facturacion.emisor_facturas import EmisorDeFacturas
-from app.aplicacion.casos_de_uso.facturacion.gestor_facturacion import GestorFacturacion
-from app.aplicacion.puertos import PublicadorEventos, Reloj, UnidadDeTrabajo
+from app.aplicacion.puertos import (
+    EnvioFacturaElectronica,
+    PublicadorEventos,
+    Reloj,
+    UnidadDeTrabajo,
+)
 from app.dominio.estados_pedido import ESTADOS_EN_SERVICIO, EstadoPedido
 from app.dominio.eventos import CuentaCobrada, EstadoDePedidoCambiado, MesasActualizadas
 from app.dominio.excepciones import PedidoNoEncontradoError
-from app.dominio.factura import Factura
+from app.dominio.factura import EmisorDeFacturas, Factura
 from app.dominio.pago import Pago, SolicitudLineaPago, validar_desglose
 from app.dominio.pedido import Pedido
 from app.dominio.usuario import Usuario
@@ -27,7 +31,7 @@ class ResultadoCobro:
 class GestorCobros:
     def __init__(self, unidad_de_trabajo: UnidadDeTrabajo, eventos: PublicadorEventos, reloj: Reloj,
                  estrategias: FabricaEstrategiasPago, emisor: EmisorDeFacturas,
-                 facturacion: GestorFacturacion) -> None:
+                 facturacion: EnvioFacturaElectronica) -> None:
         self._uow = unidad_de_trabajo
         self._eventos = eventos
         self._reloj = reloj
@@ -50,7 +54,7 @@ class GestorCobros:
             validar_desglose(lineas, pedido.total)                        # RF-06
             mesa = self._uow.mesas.obtener(pedido.numero_mesa)
             mesa.liberar()                                                # CU-05 paso 9
-            factura = self._emisor.emitir(self._uow, pedido, ahora)       # RF-07
+            factura = self._emitir_factura(pedido, ahora)                 # RF-07
 
             # La tarjeta es lo último que puede fallar: si algo anterior no cuadra,
             # nunca se llega a cobrarla. Un rechazo deshace toda la transacción (5a).
@@ -72,6 +76,11 @@ class GestorCobros:
         )
         factura = await self._facturacion.enviar_a_dian(factura.id)       # Diagrama 3
         return ResultadoCobro(pago, factura)
+
+    def _emitir_factura(self, pedido: Pedido, ahora: datetime) -> Factura:
+        """La fábrica arma la factura; persistirla es responsabilidad de esta transacción."""
+        factura = self._emisor.emitir(pedido, self._uow.facturas.ultimo_consecutivo(), ahora)
+        return self._uow.facturas.agregar(factura)
 
     def _pedido(self, pedido_id: int) -> Pedido:
         pedido = self._uow.pedidos.obtener(pedido_id)

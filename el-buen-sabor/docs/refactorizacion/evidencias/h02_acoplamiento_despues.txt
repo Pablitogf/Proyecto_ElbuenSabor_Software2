@@ -1,0 +1,2 @@
+Firma: emitir(self, pedido: app.dominio.pedido.Pedido, ultimo_consecutivo: int, ahora: datetime.datetime) -> app.dominio.factura.Factura
+Sin base de datos: FEBS1001, total 52000, id=None (sin persistir: solo el repositorio asigna id)

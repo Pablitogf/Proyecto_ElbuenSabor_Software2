@@ -153,7 +153,7 @@ Secuencia detallada del flujo 3: `docs/arquitectura/secuencia_cobrar_y_facturar.
 | **Strategy** | Comportamiento | `dominio/agenda_mesas.py` (`MejorAjuste`) | Política de asignación de mesa intercambiable |
 | **Strategy** | Comportamiento | `dominio/reabastecimiento.py` (`CoberturaPorConsumoPromedio`) | RF-12: otra fórmula de compra sin tocar el gestor |
 | **Factory Method** | Creacional | `Pedido.registrar`, `Factura.emitir`, `Reserva.crear`, `Jornada.abrir`, `MovimientoInventario.entrada/merma` | Un objeto nace válido o no nace |
-| **Factory** | Creacional | `FabricaEstrategiasPago`, `EmisorDeFacturas` | Elegir la estrategia; numeración DIAN y desglose al emitir |
+| **Factory** | Creacional | `FabricaEstrategiasPago`, `EmisorDeFacturas` (fábrica de dominio pura en `dominio/factura.py`, ver `docs/refactorizacion/`) | Elegir la estrategia; numeración DIAN y desglose al emitir |
 | **Builder** | Creacional | `integraciones/dian/constructor_xml_factura.py` | XML UBL 2.1 por secciones encadenables |
 | **Adapter** | Estructural | `integraciones/pasarela_simulada.py`, `integraciones/dian/servicio_dian_simulado.py` | Traducen los puertos a cada sistema externo; se reemplazan por los reales |
 | **Facade** | Estructural | Los `Gestor*` | Una operación de negocio coordina varios objetos, igual que en los diagramas de secuencia |

@@ -158,6 +158,12 @@ class ServicioFacturacionElectronica(Protocol):
     def enviar_reporte_diario(self, jornada: Jornada, total_ventas: int, facturas: int) -> RespuestaDIAN: ...
 
 
+class EnvioFacturaElectronica(Protocol):
+    """Lo que el cobro necesita de la facturación: enviar una factura ya emitida."""
+
+    async def enviar_a_dian(self, factura_id: int) -> Factura: ...
+
+
 # ── Seguridad ──────────────────────────────────────────────────────────────────
 class ServicioDeCredenciales(Protocol):
     def verificar_pin(self, pin: str, hash_pin: str) -> bool: ...

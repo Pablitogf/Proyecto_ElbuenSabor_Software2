@@ -8,7 +8,7 @@ participant "FabricaEstrategiasPago\n(Strategy)" as FE
 participant "EmisorDeFacturas\n(Factory)" as EF
 participant "Pasarela\n(Adapter)" as PB
 database "UnidadDeTrabajo" as UOW
-participant "GestorFacturacion" as GF
+participant "EnvioFacturaElectronica\n(puerto → GestorFacturacion)" as GF
 participant "Servicio DIAN\n(Adapter + Builder)" as DIAN
 
 Cajero -> UI : elige medio de pago y registra
@@ -17,7 +17,9 @@ GC -> UOW : jornada.exigir_abierta()
 GC -> P : registrar_pago()\n(solo si ENTREGADO → PAGADO)
 GC -> GC : validar_desglose(lineas, total)
 GC -> UOW : mesa.liberar()
-GC -> EF : emitir(pedido)\nconsecutivo + desglose impuesto + CUFE (SHA-384)
+GC -> UOW : facturas.ultimo_consecutivo()
+GC -> EF : emitir(pedido, ultimoConsecutivo)\nconsecutivo + desglose impuesto + CUFE (SHA-384)
+GC -> UOW : facturas.agregar(factura)
 GC -> FE : para(metodo).procesar(linea)
 FE -> PB : autorizar(monto)  <<tarjeta de última>>
 alt tarjeta rechazada (CU-02 5a)

@@ -12,7 +12,6 @@ from app.aplicacion.casos_de_uso.caja.estrategias_pago import FabricaEstrategias
 from app.aplicacion.casos_de_uso.caja.gestor_cobros import GestorCobros
 from app.aplicacion.casos_de_uso.caja.gestor_jornada import GestorJornada
 from app.aplicacion.casos_de_uso.cocina.gestor_cocina import GestorCocina
-from app.aplicacion.casos_de_uso.facturacion.emisor_facturas import EmisorDeFacturas
 from app.aplicacion.casos_de_uso.facturacion.gestor_facturacion import GestorFacturacion
 from app.aplicacion.casos_de_uso.inventario.gestor_inventario import GestorInventario
 from app.aplicacion.casos_de_uso.pedidos.gestor_pedidos import GestorPedidos
@@ -21,7 +20,7 @@ from app.aplicacion.casos_de_uso.salon.consultar_salon import ConsultarSalon
 from app.aplicacion.puertos import Reloj
 from app.configuracion import Configuracion
 from app.dominio.agenda_mesas import MejorAjuste
-from app.dominio.factura import ResolucionDIAN
+from app.dominio.factura import EmisorDeFacturas, ResolucionDIAN
 from app.dominio.impuestos import CALCULADORAS
 from app.dominio.reabastecimiento import CoberturaPorConsumoPromedio
 from app.infraestructura.base_de_datos.conexion import crear_fabrica_de_sesiones, crear_motor

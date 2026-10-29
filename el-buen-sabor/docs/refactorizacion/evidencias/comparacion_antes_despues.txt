@@ -1,0 +1,8 @@
+Pruebas antes: 80 aprobadas · después: 85 aprobadas
+Pruebas de antes que fallan después: 0
+Nuevas:
+tests/test_dominio_caja.py::TestEmisorDeFacturas::test_empieza_en_el_inicio_de_la_resolucion PASSED
+tests/test_dominio_caja.py::TestEmisorDeFacturas::test_no_guarda_nada_por_si_solo PASSED
+tests/test_dominio_caja.py::TestEmisorDeFacturas::test_respeta_el_fin_del_rango_autorizado PASSED
+tests/test_dominio_caja.py::TestEmisorDeFacturas::test_toma_el_siguiente_al_ultimo_emitido PASSED
+tests/test_gestor_cobros_aislado.py::test_el_cobro_emite_y_pide_enviar_la_factura_sin_conocer_al_gestor_de_facturacion PASSED

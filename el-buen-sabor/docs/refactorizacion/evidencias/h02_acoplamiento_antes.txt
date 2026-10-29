@@ -1,0 +1,4 @@
+Caso 1 · UoW cerrada: emitir() NO falla y devuelve FEBS1001 (id=1)
+         Facturas realmente guardadas en la base: 0 -> se perdió en silencio
+Caso 2 · UoW sin abrir: AttributeError: 'UnidadDeTrabajoSQL' object has no attribute 'facturas'
+Tras cerrar la sesión prestada, facturas en la base: 0

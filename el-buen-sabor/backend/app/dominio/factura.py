@@ -30,6 +30,10 @@ class ResolucionDIAN:
             raise ResolucionAgotadaError(self.hasta)
         return f"{self.prefijo}{consecutivo}"
 
+    def siguiente_consecutivo(self, ultimo_emitido: int) -> int:
+        """La numeración arranca en `desde` aunque aún no se haya emitido ninguna."""
+        return max(ultimo_emitido + 1, self.desde)
+
 
 class EstadoFactura(str, Enum):
     PENDIENTE_DIAN = "PENDIENTE_DIAN"  # Emitida; la DIAN aún no la valida (contingencia).
@@ -121,3 +125,20 @@ def calcular_cufe(numero: str, fecha: datetime, base: int, codigo_impuesto: str,
 
 def _decimal(valor: int) -> str:
     return f"{valor:.2f}"
+
+
+class EmisorDeFacturas:
+    """Fábrica de dominio (patrón Factory): con la resolución DIAN y la estrategia de
+    impuesto configuradas, arma la factura de un pedido.
+
+    Es pura: no lee ni guarda nada. Quien la usa le entrega el último consecutivo
+    emitido y decide cuándo persistir la factura dentro de su propia transacción.
+    """
+
+    def __init__(self, resolucion: ResolucionDIAN, impuesto: CalculadoraImpuesto) -> None:
+        self._resolucion = resolucion
+        self._impuesto = impuesto
+
+    def emitir(self, pedido: Pedido, ultimo_consecutivo: int, ahora: datetime) -> Factura:
+        consecutivo = self._resolucion.siguiente_consecutivo(ultimo_consecutivo)
+        return Factura.emitir(pedido, consecutivo, self._resolucion, self._impuesto, ahora)
